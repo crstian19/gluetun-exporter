@@ -1,0 +1,34 @@
+name: Releaser Pleaser
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - edited
+      - labeled
+
+concurrency:
+  group: releaser-pleaser
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  releaser-pleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run Releaser Pleaser
+        uses: apricote/releaser-pleaser@v0.8.0
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          extra-files: |
+            Dockerfile

@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: gluetun-exporter
+    static_configs:
+      # The exporter shares Gluetun's network namespace (network_mode: service:gluetun),
+      # so it is reachable at the gluetun service hostname on port 9586.
+      - targets: ["gluetun:9586"]
+    metrics_path: /metrics

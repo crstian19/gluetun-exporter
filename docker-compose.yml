@@ -1,0 +1,81 @@
+services:
+
+  gluetun:
+    image: ghcr.io/qdm12/gluetun
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    environment:
+      # Set your VPN provider and credentials here.
+      # See https://github.com/qdm12/gluetun-wiki for all supported providers.
+      - VPN_SERVICE_PROVIDER=mullvad         # e.g. mullvad, nordvpn, expressvpn, custom, ...
+      - VPN_TYPE=wireguard                   # wireguard or openvpn
+      # WireGuard example (Mullvad)
+      - WIREGUARD_PRIVATE_KEY=your_private_key_here
+      - WIREGUARD_ADDRESSES=10.x.x.x/32
+      # OpenVPN example — uncomment and fill in instead:
+      # - OPENVPN_USER=your_username
+      # - OPENVPN_PASSWORD=your_password
+    ports:
+      - "8888:8888"   # HTTP proxy
+      - "8000:8000"   # Gluetun control server API (used by the exporter)
+
+  # The exporter runs inside Gluetun's network namespace so it can read
+  # /proc/net/dev for the tun0 interface and reach the control server on
+  # localhost:8000 — exactly as if it were the Gluetun process itself.
+  gluetun-exporter:
+    image: ghcr.io/crstian19/gluetun-exporter:latest
+    container_name: gluetun-exporter
+    restart: unless-stopped
+    network_mode: "service:gluetun"   # share Gluetun's network namespace
+    depends_on:
+      - gluetun
+    environment:
+      - GLUETUN_URL=http://localhost:8000
+      - INTERFACE_NAME=tun0
+      - LISTEN_ADDRESS=:9586
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: gluetun-prometheus
+    restart: unless-stopped
+    # Keeps the option to reach services on the Docker host if needed.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - "9091:9090"
+    depends_on:
+      - gluetun-exporter
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: gluetun-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      # Datasource provisioning
+      - ./grafana-provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      # Dashboard provider config + the dashboard JSON itself
+      - ./grafana-provisioning/dashboards/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml:ro
+      - ./grafana-provisioning/dashboards/gluetun-dashboard.json:/var/lib/grafana/dashboards/gluetun-dashboard.json:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
+volumes:
+  prometheus_data:
+  grafana_data:
