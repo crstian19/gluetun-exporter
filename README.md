@@ -13,7 +13,7 @@
 ![GitHub Release](https://img.shields.io/github/release/crstian19/gluetun-exporter?style=for-the-badge&logo=github&logoColor=white&label=release)
 ![Go Version](https://img.shields.io/github/go-mod/go-version/crstian19/gluetun-exporter?style=for-the-badge&logo=go&logoColor=white&label=go)
 
-[Quick Start](#-quick-start) • [Metrics](#-metrics) • [Configuration](#%EF%B8%8F-configuration) • [Development](#%EF%B8%8F-development)
+[Quick Start](#-quick-start) • [Metrics](#-metrics) • [Configuration](#%EF%B8%8F-configuration) • [Dashboard](#-grafana-dashboard) • [Development](#%EF%B8%8F-development)
 
 </div>
 
@@ -106,6 +106,23 @@ scrape_configs:
 | `LOG_LEVEL` | `info` | Log level (debug, info, warn, error) |
 
 All options also available as CLI flags — run `gluetun-exporter --help` for details.
+
+---
+
+## 📈 Grafana Dashboard
+
+A ready-made dashboard is included at [`grafana-provisioning/dashboards/gluetun-dashboard.json`](grafana-provisioning/dashboards/gluetun-dashboard.json).
+
+![Gluetun Dashboard](https://raw.githubusercontent.com/crstian19/gluetun-exporter/main/grafana-provisioning/dashboards/preview.png)
+
+**Panels included:**
+- VPN status, public IP, location, organization, timezone, forwarded port
+- RX/TX rate (bytes/s) and packet rate timeseries
+- Errors & drops timeseries
+- Total bytes/packets received and transmitted
+- Scrape duration and error count
+
+To load it automatically with Docker Compose, see the [full example](docker-compose.yml) in the repo.
 
 ---
 
