@@ -43,6 +43,27 @@ docker run -d \
   ghcr.io/crstian19/gluetun-exporter:latest
 ```
 
+### Docker Compose
+
+```yaml
+services:
+  gluetun:
+    image: ghcr.io/qdm12/gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=...
+      # ... other gluetun env vars
+
+  gluetun-exporter:
+    image: ghcr.io/crstian19/gluetun-exporter:latest
+    network_mode: "service:gluetun"  # shares gluetun's network namespace
+    depends_on:
+      - gluetun
+```
+
+A complete example with Prometheus and Grafana is available in [docker-compose.yml](docker-compose.yml).
+
 ### Prometheus scrape config
 
 ```yaml
