@@ -18,7 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
       -X main.BuildDate=${BUILD_DATE}" \
     -o gluetun-exporter .
 
-FROM alpine:3.22
+FROM alpine:3.23
 
 RUN apk --no-cache add ca-certificates tzdata
 
