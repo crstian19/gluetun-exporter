@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.1.2](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.2)
+
+### Bug Fixes
+
+- update dependencies and github actions
+
 ## [v0.1.1](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.1)
 
 ### Bug Fixes
