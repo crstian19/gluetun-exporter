@@ -127,7 +127,9 @@ func TestClient_DefaultAuthMethodNone(t *testing.T) {
         if r.Header.Get("Authorization") != "" {
             t.Fatalf("expected no Authorization header, got %q", r.Header.Get("Authorization"))
         }
-        w.Write([]byte(`{"status":"running"}`))
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
     }))
 
     _, err := client.GetVPNStatus(context.Background())
@@ -150,7 +152,9 @@ func TestClient_BasicAuth(t *testing.T) {
         if username != "user" || password != "pass" {
             t.Fatalf("basic auth mismatch: got %s/%s", username, password)
         }
-        w.Write([]byte(`{"status":"running"}`))
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
     }))
 
     _, err := client.GetVPNStatus(context.Background())
@@ -169,7 +173,9 @@ func TestClient_APIKey(t *testing.T) {
         if apiKey != "secretkey" {
             t.Fatalf("expected X-API-Key header 'secretkey', got %q", apiKey)
         }
-        w.Write([]byte(`{"status":"running"}`))
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
     }))
 
     _, err := client.GetVPNStatus(context.Background())
@@ -186,7 +192,9 @@ func TestClient_InvalidAuthMethod_NoAuth(t *testing.T) {
         if r.Header.Get("Authorization") != "" || r.Header.Get("X-API-Key") != "" {
             t.Fatal("expected no auth headers for invalid auth method")
         }
-        w.Write([]byte(`{"status":"running"}`))
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
     }))
 
     _, err := client.GetVPNStatus(context.Background())
