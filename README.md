@@ -108,9 +108,9 @@ scrape_configs:
 | `METRICS_PATH` | `/metrics` | Metrics endpoint path |
 | `LOG_LEVEL` | `info` | Log level (debug, info, warn, error) |
 | `GLUETUN_AUTH_METHOD` | `none` | Gluetun control server authentication method (none, apikey, basic). Please note authentication is required by default; [check the gluetun docs for more info](https://github.com/qdm12/gluetun-wiki/blob/main/setup/advanced/control-server.md#authentication). |
-| `GLUETUN_AUTH_USERNAME` |  | Gluetun control server username, set if using GLUETUN_AUTH_METHOD=basic |
-| `GLUETUN_AUTH_PASSWORD` |  | Gluetun control server password, set if using GLUETUN_AUTH_METHOD=basic |
-| `GLUETUN_AUTH_APIKEY` |  | Gluetun control server apikey, set if using GLUETUN_AUTH_METHOD=apikey |
+| `GLUETUN_AUTH_USERNAME` |  | Gluetun control server username, set if using `GLUETUN_AUTH_METHOD=basic` |
+| `GLUETUN_AUTH_PASSWORD` |  | Gluetun control server password, set if using `GLUETUN_AUTH_METHOD=basic` |
+| `GLUETUN_AUTH_APIKEY` |  | Gluetun control server apikey, set if using `GLUETUN_AUTH_METHOD=apikey` |
 
 
 All options also available as CLI flags — run `gluetun-exporter --help` for details.
