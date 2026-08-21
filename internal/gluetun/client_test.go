@@ -118,3 +118,87 @@ func TestGetPortForwarding_NonOK(t *testing.T) {
 		t.Fatal("expected error for non-200 response, got nil")
 	}
 }
+
+// TestClient_DefaultAuthMethodNone verifies that no auth provided does not include an auth header 
+func TestClient_DefaultAuthMethodNone(t *testing.T) {
+    t.Setenv("GLUETUN_AUTH_METHOD", "") // unset
+    client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // No Authorization header expected
+        if r.Header.Get("Authorization") != "" {
+            t.Fatalf("expected no Authorization header, got %q", r.Header.Get("Authorization"))
+        }
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
+    }))
+
+    _, err := client.GetVPNStatus(context.Background())
+    if err != nil {
+        t.Fatalf("unexpected error: %v", err)
+    }
+}
+
+// TestClient_BasicAuth verifies that using basic auth method includes the correct headers
+func TestClient_BasicAuth(t *testing.T) {
+    t.Setenv("GLUETUN_AUTH_METHOD", "basic")
+    t.Setenv("GLUETUN_AUTH_USERNAME", "user")
+    t.Setenv("GLUETUN_AUTH_PASSWORD", "pass")
+
+    client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        username, password, ok := r.BasicAuth()
+        if !ok {
+            t.Fatal("expected basic auth header, got none")
+        }
+        if username != "user" || password != "pass" {
+            t.Fatalf("basic auth mismatch: got %s/%s", username, password)
+        }
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
+    }))
+
+    _, err := client.GetVPNStatus(context.Background())
+    if err != nil {
+        t.Fatalf("unexpected error: %v", err)
+    }
+}
+
+// TestClient_BasicAuth verifies that using api-key auth method includes the correct header
+func TestClient_APIKey(t *testing.T) {
+    t.Setenv("GLUETUN_AUTH_METHOD", "apikey")
+    t.Setenv("GLUETUN_AUTH_APIKEY", "secretkey")
+
+    client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        apiKey := r.Header.Get("X-API-Key")
+        if apiKey != "secretkey" {
+            t.Fatalf("expected X-API-Key header 'secretkey', got %q", apiKey)
+        }
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
+    }))
+
+    _, err := client.GetVPNStatus(context.Background())
+    if err != nil {
+        t.Fatalf("unexpected error: %v", err)
+    }
+}
+
+// TestClient_InvalidAuthMethod_NoAuth ensures invalid auth types cause no auth behaviour
+func TestClient_InvalidAuthMethod_NoAuth(t *testing.T) {
+    t.Setenv("GLUETUN_AUTH_METHOD", "invalid")
+
+    client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        if r.Header.Get("Authorization") != "" || r.Header.Get("X-API-Key") != "" {
+            t.Fatal("expected no auth headers for invalid auth method")
+        }
+        if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
+			t.Fatalf("failed to write response: %v", err)
+		}
+    }))
+
+    _, err := client.GetVPNStatus(context.Background())
+    if err != nil {
+        t.Fatalf("unexpected error: %v", err)
+    }
+}
