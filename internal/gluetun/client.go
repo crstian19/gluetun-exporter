@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"os"
 )
 
 const defaultTimeout = 10 * time.Second
@@ -15,13 +16,28 @@ const defaultTimeout = 10 * time.Second
 type Client struct {
 	httpClient *http.Client
 	baseURL    string
+
+    authMethod string
+    username   string
+    password   string
+    apiKey     string
 }
 
 // NewClient creates a new Gluetun client
 func NewClient(baseURL string) *Client {
+	authMethod := os.Getenv("GLUETUN_AUTH_METHOD")
+    if authMethod == "" { // Backwards compatibility
+        authMethod = "none"
+    }
+
 	return &Client{
 		httpClient: &http.Client{Timeout: defaultTimeout},
 		baseURL:    baseURL,
+		
+        authMethod: authMethod,
+        username:   os.Getenv("GLUETUN_AUTH_USERNAME"),
+        password:   os.Getenv("GLUETUN_AUTH_PASSWORD"),
+        apiKey:     os.Getenv("GLUETUN_AUTH_APIKEY"),
 	}
 }
 
@@ -78,7 +94,17 @@ func (c *Client) get(ctx context.Context, path string, out any) error {
 	if err != nil {
 		return fmt.Errorf("create request: %w", err)
 	}
+	// Authentication handling
+    switch c.authMethod {
+    case "basic":
+        req.SetBasicAuth(c.username, c.password)
 
+    case "apikey":
+        req.Header.Set("X-API-Key", c.apiKey)
+
+    case "none":
+        // no auth
+    }
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("execute request: %w", err)

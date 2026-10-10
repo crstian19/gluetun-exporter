@@ -17,6 +17,7 @@ services:
       # OpenVPN example — uncomment and fill in instead:
       # - OPENVPN_USER=your_username
       # - OPENVPN_PASSWORD=your_password
+      - HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE='{"auth":"apikey","apikey":"your_apikey_here"}'
     ports:
       - "8888:8888"   # HTTP proxy
       - "8000:8000"   # Gluetun control server API (used by the exporter)
@@ -35,6 +36,8 @@ services:
       - GLUETUN_URL=http://localhost:8000
       - INTERFACE_NAME=tun0
       - LISTEN_ADDRESS=:9586
+      - GLUETUN_AUTH_METHOD=apikey # must match HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE above
+      - GLUETUN_AUTH_APIKEY=your_apikey_here
 
   prometheus:
     image: prom/prometheus:latest
