@@ -125,10 +125,10 @@ func TestClient_DefaultAuthMethodNone(t *testing.T) {
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// No Authorization header expected
 		if r.Header.Get("Authorization") != "" {
-			t.Fatalf("expected no Authorization header, got %q", r.Header.Get("Authorization"))
+			t.Errorf("expected no Authorization header, got %q", r.Header.Get("Authorization"))
 		}
 		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
+			t.Errorf("failed to write response: %v", err)
 		}
 	}))
 
@@ -147,13 +147,13 @@ func TestClient_BasicAuth(t *testing.T) {
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
 		if !ok {
-			t.Fatal("expected basic auth header, got none")
+			t.Error("expected basic auth header, got none")
 		}
 		if username != "user" || password != "pass" {
-			t.Fatalf("basic auth mismatch: got %s/%s", username, password)
+			t.Errorf("basic auth mismatch: got %s/%s", username, password)
 		}
 		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
+			t.Errorf("failed to write response: %v", err)
 		}
 	}))
 
@@ -171,10 +171,10 @@ func TestClient_APIKey(t *testing.T) {
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get("X-API-Key")
 		if apiKey != "secretkey" {
-			t.Fatalf("expected X-API-Key header 'secretkey', got %q", apiKey)
+			t.Errorf("expected X-API-Key header 'secretkey', got %q", apiKey)
 		}
 		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
+			t.Errorf("failed to write response: %v", err)
 		}
 	}))
 
@@ -190,7 +190,7 @@ func TestClient_InvalidAuthMethod_Error(t *testing.T) {
 	t.Setenv("GLUETUN_AUTH_METHOD", "invalid")
 
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t.Fatal("expected no request for an invalid auth method")
+		t.Error("expected no request for an invalid auth method")
 	}))
 
 	_, err := client.GetVPNStatus(context.Background())
