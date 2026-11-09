@@ -184,21 +184,17 @@ func TestClient_APIKey(t *testing.T) {
 	}
 }
 
-// TestClient_InvalidAuthMethod_NoAuth ensures invalid auth types cause no auth behaviour
-func TestClient_InvalidAuthMethod_NoAuth(t *testing.T) {
+// TestClient_InvalidAuthMethod_Error ensures an unknown auth method fails loudly
+// instead of silently sending unauthenticated requests
+func TestClient_InvalidAuthMethod_Error(t *testing.T) {
 	t.Setenv("GLUETUN_AUTH_METHOD", "invalid")
 
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") != "" || r.Header.Get("X-API-Key") != "" {
-			t.Fatal("expected no auth headers for invalid auth method")
-		}
-		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
-		}
+		t.Fatal("expected no request for an invalid auth method")
 	}))
 
 	_, err := client.GetVPNStatus(context.Background())
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	if err == nil {
+		t.Fatal("expected an error for an invalid auth method")
 	}
 }
