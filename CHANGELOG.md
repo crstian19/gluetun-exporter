@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.1.4](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.4)
+
+[Compare to previous version](https://github.com/crstian19/gluetun-exporter/compare/v0.1.3...v0.1.4)
+
+### Bug Fixes
+
+- **release**: keep the release notes written by releaser-pleaser (#24) ([686d986](https://github.com/crstian19/gluetun-exporter/commit/686d986366284e2ad2c94ae0995d78419fa08b7c))
+
 ## [v0.1.3](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.3)
 
 [Compare to previous version](https://github.com/crstian19/gluetun-exporter/compare/v0.1.2...v0.1.3)
