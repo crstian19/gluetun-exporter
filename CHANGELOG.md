@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.1.5](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.5)
+
+[Compare to previous version](https://github.com/crstian19/gluetun-exporter/compare/v0.1.4...v0.1.5)
+
+### Bug Fixes
+
+- Update dependency go to v1.27.4 (#28) ([ca4c938](https://github.com/crstian19/gluetun-exporter/commit/ca4c938b1f9b35e983b6ba33ab284f16878ed094))
+
 ## [v0.1.4](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.4)
 
 [Compare to previous version](https://github.com/crstian19/gluetun-exporter/compare/v0.1.3...v0.1.4)
