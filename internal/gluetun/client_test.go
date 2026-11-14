@@ -125,10 +125,10 @@ func TestClient_DefaultAuthMethodNone(t *testing.T) {
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// No Authorization header expected
 		if r.Header.Get("Authorization") != "" {
-			t.Fatalf("expected no Authorization header, got %q", r.Header.Get("Authorization"))
+			t.Errorf("expected no Authorization header, got %q", r.Header.Get("Authorization"))
 		}
 		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
+			t.Errorf("failed to write response: %v", err)
 		}
 	}))
 
@@ -147,13 +147,13 @@ func TestClient_BasicAuth(t *testing.T) {
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
 		if !ok {
-			t.Fatal("expected basic auth header, got none")
+			t.Error("expected basic auth header, got none")
 		}
 		if username != "user" || password != "pass" {
-			t.Fatalf("basic auth mismatch: got %s/%s", username, password)
+			t.Errorf("basic auth mismatch: got %s/%s", username, password)
 		}
 		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
+			t.Errorf("failed to write response: %v", err)
 		}
 	}))
 
@@ -171,10 +171,10 @@ func TestClient_APIKey(t *testing.T) {
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		apiKey := r.Header.Get("X-API-Key")
 		if apiKey != "secretkey" {
-			t.Fatalf("expected X-API-Key header 'secretkey', got %q", apiKey)
+			t.Errorf("expected X-API-Key header 'secretkey', got %q", apiKey)
 		}
 		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
+			t.Errorf("failed to write response: %v", err)
 		}
 	}))
 
@@ -184,21 +184,17 @@ func TestClient_APIKey(t *testing.T) {
 	}
 }
 
-// TestClient_InvalidAuthMethod_NoAuth ensures invalid auth types cause no auth behaviour
-func TestClient_InvalidAuthMethod_NoAuth(t *testing.T) {
+// TestClient_InvalidAuthMethod_Error ensures an unknown auth method fails loudly
+// instead of silently sending unauthenticated requests
+func TestClient_InvalidAuthMethod_Error(t *testing.T) {
 	t.Setenv("GLUETUN_AUTH_METHOD", "invalid")
 
 	client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") != "" || r.Header.Get("X-API-Key") != "" {
-			t.Fatal("expected no auth headers for invalid auth method")
-		}
-		if _, err := w.Write([]byte(`{"status":"running"}`)); err != nil {
-			t.Fatalf("failed to write response: %v", err)
-		}
+		t.Error("expected no request for an invalid auth method")
 	}))
 
 	_, err := client.GetVPNStatus(context.Background())
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	if err == nil {
+		t.Fatal("expected an error for an invalid auth method")
 	}
 }

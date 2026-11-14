@@ -104,6 +104,9 @@ func (c *Client) get(ctx context.Context, path string, out any) error {
 
 	case "none":
 		// no auth
+
+	default:
+		return fmt.Errorf("unknown GLUETUN_AUTH_METHOD %q: want none, basic or apikey", c.authMethod)
 	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
