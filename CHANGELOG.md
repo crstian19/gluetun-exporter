@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.1.6](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.6)
+
+[Compare to previous version](https://github.com/crstian19/gluetun-exporter/compare/v0.1.5...v0.1.6)
+
+### Bug Fixes
+
+- **gluetun**: reject an unknown GLUETUN_AUTH_METHOD (#26) ([6be8ad2](https://github.com/crstian19/gluetun-exporter/commit/6be8ad272fbf5b310bfc038c9b0f3789c825da7b))
+
 ## [v0.1.5](https://github.com/crstian19/gluetun-exporter/releases/tag/v0.1.5)
 
 [Compare to previous version](https://github.com/crstian19/gluetun-exporter/compare/v0.1.4...v0.1.5)
